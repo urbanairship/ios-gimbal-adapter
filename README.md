@@ -10,7 +10,7 @@ Urban Airship.
 
 ## Requirements
 
-Before installing the Gimbal Adapter, make sure the following dependencies are installed for you application:
+Before installing the Gimbal Adapter, make sure the following dependencies are installed for your application:
  - Urban Airship SDK 8.0.0 or newer
  - Gimbal SDK 2.0.0 or newer
 
@@ -20,7 +20,7 @@ Before installing the Gimbal Adapter, make sure the following dependencies are i
 
 1) Copy `GimbalAdapter.swift` into your project
 
-2) In your application delegate, call restore during didFinishLaunchingWithOptions:
+2) In your application delegate, call `restore` during `didFinishLaunchingWithOptions`:
 
 ```
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
@@ -41,7 +41,7 @@ To start the adapter call:
 GimbalAdapter.shared.start("## PLACE YOUR API KEY HERE ##")
 ```
 
-#### Stoping the adapter
+#### Stopping the adapter
 
 Adapter can be stopped at anytime by calling:
 ```
@@ -52,7 +52,7 @@ GimbalAdapter.shared.stop()
 
 In the event that Bluetooth is disabled during place monitoring, the Gimbal Adapter can prompt users with an alert view
 to enable Bluetooth. This functionality is disabled by default, but can be enabled by setting GimbalAdapter's
-bluetoothPoweredOffAlertEnabled property to true:
+`bluetoothPoweredOffAlertEnabled` property to true:
 
 ```
 GimbalAdapter.shared.bluetoothPoweredOffAlertEnabled = true
@@ -69,13 +69,13 @@ GimbalAdapter.shared.bluetoothPoweredOffAlertEnabled = true
 
 To start the adapter call:
 ```
-[[UAGimbalAdapter shared] startWithGimbalAPiKey:@"## PLACE YOUR API KEY HERE ##"];
+[[UAGimbalAdapter shared] startWithGimbalAPIKey:@"## PLACE YOUR API KEY HERE ##"];
 ```
 
 The adapter will automatically resume itself on next application launch. You only need to call
 start once.
 
-#### Stoping the adapter
+#### Stopping the adapter
 
 Adapter can be stopped at anytime by calling:
 ```
