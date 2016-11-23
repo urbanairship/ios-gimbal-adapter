@@ -38,8 +38,6 @@ open class GimbalAdapter {
         isStarted = false
         placeManager = GMBLPlaceManager()
         gimbalDelegate = GimbalDelegate()
-        placeManager.delegate = gimbalDelegate
-
 
         // Hide the BLE power status alert to prevent duplicate alerts
         if (UserDefaults.standard.value(forKey: hideBlueToothAlertViewKey) == nil) {
@@ -71,6 +69,7 @@ open class GimbalAdapter {
         Gimbal.setAPIKey(apiKey, options: nil)
 
         isStarted = true
+        placeManager.delegate = gimbalDelegate
         GMBLPlaceManager.startMonitoring()
 
         UserDefaults.standard.set(apiKey, forKey: gimbalKey)
@@ -89,6 +88,7 @@ open class GimbalAdapter {
 
         isStarted = false
         GMBLPlaceManager.stopMonitoring()
+        placeManager.delegate = nil
 
         UserDefaults.standard.set(false, forKey: adapterStartedKey)
 

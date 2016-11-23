@@ -31,7 +31,6 @@ static id _sharedObject = nil;
     self = [super init];
     if (self) {
         self.placeManager = [[GMBLPlaceManager alloc] init];
-        self.placeManager.delegate = self;
 
         // Hide the power alert by default
         if (![[NSUserDefaults standardUserDefaults] valueForKey:GimbalAlertViewKey]) {
@@ -71,6 +70,8 @@ static id _sharedObject = nil;
     }
 
     [Gimbal setAPIKey:gimbalAPIKey options:nil];
+
+    self.placeManager.delegate = self;
     [GMBLPlaceManager startMonitoring];
     self.started = YES;
 
@@ -90,6 +91,7 @@ static id _sharedObject = nil;
     }
 
     [GMBLPlaceManager stopMonitoring];
+    self.placeManager.delegate = nil;
     self.started = NO;
 
     [[NSUserDefaults standardUserDefaults] setBool:NO
