@@ -16,8 +16,6 @@ open class GimbalAdapter {
 
     // Keys
     private let hideBlueToothAlertViewKey = "gmbl_hide_bt_power_alert_view"
-    private let gimbalKey = "com.urbanairship.gimbal.key"
-    private let adapterStartedKey = "com.urbanairship.gimbal.started"
 
     private let placeManager: GMBLPlaceManager
     private let gimbalDelegate: GimbalDelegate
@@ -49,11 +47,8 @@ open class GimbalAdapter {
      * Restores the adapter. Should be called in didFinishLaunchingWithOptions.
      */
     open func restore() {
-        let key = UserDefaults.standard.string(forKey: gimbalKey)
-        let started = UserDefaults.standard.bool(forKey: adapterStartedKey)
-
-        if (key != nil && started) {
-            start(key!)
+        if (GMBLPlaceManager.isMonitoring()) {
+            start(nil);
         }
     }
 
@@ -61,22 +56,25 @@ open class GimbalAdapter {
      * Starts the adapter.
      * @param apiKey The Gimbal API key.
      */
-    open func start(_ apiKey: String) {
-        guard (!isStarted || apiKey.isEmpty) else {
-            return
+    open func start(_ apiKey: String?) {
+        if (isStarted) {
+            return;
         }
 
-        Gimbal.setAPIKey(apiKey, options: nil)
+        if (apiKey != nil && apiKey!.isEmpty == false) {
+            Gimbal.setAPIKey(apiKey, options: nil)
+        } else if (!GMBLPlaceManager.isMonitoring()) {
+            print("GMBLPlaceManager is not previously started and API key is not provided. Unable to start Gimbal Adapter.");
+            return;
+        }
 
         isStarted = true
         placeManager.delegate = gimbalDelegate
         GMBLPlaceManager.startMonitoring()
 
-        UserDefaults.standard.set(apiKey, forKey: gimbalKey)
-        UserDefaults.standard.set(true, forKey: adapterStartedKey)
-
         print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier())")
     }
+
 
     /**
      * Stops the adapter.
@@ -89,8 +87,6 @@ open class GimbalAdapter {
         isStarted = false
         GMBLPlaceManager.stopMonitoring()
         placeManager.delegate = nil
-
-        UserDefaults.standard.set(false, forKey: adapterStartedKey)
 
         print("Stopped Gimbal Adapter");
     }

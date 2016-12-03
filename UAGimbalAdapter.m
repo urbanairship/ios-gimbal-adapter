@@ -1,22 +1,19 @@
 /* Copyright 2016 Urban Airship and Contributors */
 
 #import "UAGimbalAdapter.h"
-#import <Gimbal/Gimbal.h>
 
+@import <Gimbal/Gimbal.h>
 @import AirshipKit;
-
 
 @interface UAGimbalAdapter() <GMBLPlaceManagerDelegate>
 @property (nonatomic, assign, getter=isStarted) BOOL started;
-
+@property (nonatomic, strong) GMBLPlaceManager *placeManager;
 @end
 
 NSString *const GimbalSource = @"Gimbal";
 
 // NSUserDefault Keys
 NSString *const GimbalAlertViewKey = @"gmbl_hide_bt_power_alert_view";
-NSString *const AdapterStartedKey = @"com.urbanairship.gimbal.started";
-NSString *const GimbalKey = @"com.urbanairship.gimbal.key";
 
 @implementation UAGimbalAdapter
 
@@ -24,7 +21,10 @@ static id _sharedObject = nil;
 
 
 + (void)load {
-    [[UAGimbalAdapter shared] restore];
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:[UAGimbalAdapter class]
+               selector:@selector(handleAppDidFinishLaunching)
+                   name:UIApplicationDidFinishLaunchingNotification object:nil];
 }
 
 - (instancetype)init {
@@ -55,6 +55,16 @@ static id _sharedObject = nil;
     return _sharedObject;
 }
 
++ (void)handleAppDidFinishLaunching {
+    [[NSNotificationCenter defaultCenter] removeObserver:[UAGimbalAdapter class]
+                                                    name:UIApplicationDidFinishLaunchingNotification
+                                                  object:nil];
+
+    if ([GMBLPlaceManager isMonitoring]) {
+        [[UAGimbalAdapter shared] startWithGimbalAPIKey:nil];
+    }
+}
+
 - (BOOL)isBluetoothPoweredOffAlertEnabled {
     return ![[NSUserDefaults standardUserDefaults] boolForKey:GimbalAlertViewKey];
 }
@@ -69,18 +79,16 @@ static id _sharedObject = nil;
         return;
     }
 
-    [Gimbal setAPIKey:gimbalAPIKey options:nil];
+    if (gimbalAPIKey.length) {
+        [Gimbal setAPIKey:gimbalAPIKey options:nil];
+    } else if (![GMBLPlaceManager isMonitoring]) {
+        NSLog(@"GMBLPlaceManager is not previously started and API key is not provided. Unable to start Gimbal Adapter.");
+        return;
+    }
 
     self.placeManager.delegate = self;
     [GMBLPlaceManager startMonitoring];
     self.started = YES;
-
-    [[NSUserDefaults standardUserDefaults] setBool:YES
-                                            forKey:AdapterStartedKey];
-
-    [[NSUserDefaults standardUserDefaults] setObject:gimbalAPIKey
-                                              forKey:GimbalKey];
-
 
     UA_LDEBUG(@"Started Gimbal Adapter.");
 }
@@ -94,20 +102,9 @@ static id _sharedObject = nil;
     self.placeManager.delegate = nil;
     self.started = NO;
 
-    [[NSUserDefaults standardUserDefaults] setBool:NO
-                                            forKey:AdapterStartedKey];
-
     UA_LDEBUG(@"Stopped Gimbal Adapter.");
 }
 
-- (void)restore {
-    NSString *apiKey = [[NSUserDefaults standardUserDefaults] stringForKey:GimbalKey];
-    BOOL started = [[NSUserDefaults standardUserDefaults] boolForKey:AdapterStartedKey];
-
-    if (apiKey && started) {
-        [[UAGimbalAdapter shared] startWithGimbalAPIKey:apiKey];
-    }
-}
 
 #pragma mark -
 #pragma mark Gimbal places callbacks
