@@ -89,8 +89,7 @@ static id _sharedObject = nil;
     self.placeManager.delegate = self;
     [GMBLPlaceManager startMonitoring];
     self.started = YES;
-
-    UA_LDEBUG(@"Started Gimbal Adapter.");
+    UA_LDEBUG(@"Started Gimbal Adapter. Gimbal application instance identifier: %@", [Gimbal applicationInstanceIdentifier]);
 }
 
 - (void)stop {
