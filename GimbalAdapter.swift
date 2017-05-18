@@ -1,6 +1,7 @@
 /* Copyright 2016 Urban Airship and Contributors */
 
 import AirshipKit
+import Gimbal
 
 open class GimbalAdapter {
 
@@ -8,7 +9,7 @@ open class GimbalAdapter {
      * Singleton access.
      */
     open static let shared = GimbalAdapter()
-
+    
     /**
      * Returns true if the adapter is started, otherwise false.
      */
@@ -19,6 +20,7 @@ open class GimbalAdapter {
 
     private let placeManager: GMBLPlaceManager
     private let gimbalDelegate: GimbalDelegate
+    private let deviceAttributesManager: GMBLDeviceAttributesManager
 
     /**
      * Enables alert when Bluetooth is powered off. Defaults to NO.
@@ -36,6 +38,7 @@ open class GimbalAdapter {
         isStarted = false
         placeManager = GMBLPlaceManager()
         gimbalDelegate = GimbalDelegate()
+        deviceAttributesManager = GMBLDeviceAttributesManager()
 
         // Hide the BLE power status alert to prevent duplicate alerts
         if (UserDefaults.standard.value(forKey: hideBlueToothAlertViewKey) == nil) {
@@ -47,9 +50,9 @@ open class GimbalAdapter {
      * Restores the adapter. Should be called in didFinishLaunchingWithOptions.
      */
     open func restore() {
-        if (GMBLPlaceManager.isMonitoring()) {
-            start(nil);
-        }
+        isStarted = Gimbal.isStarted()
+        placeManager.delegate = gimbalDelegate
+        setDeviceAttributes()
     }
 
     /**
@@ -57,38 +60,40 @@ open class GimbalAdapter {
      * @param apiKey The Gimbal API key.
      */
     open func start(_ apiKey: String?) {
-        if (isStarted) {
-            return;
-        }
-
-        if (apiKey != nil && apiKey!.isEmpty == false) {
-            Gimbal.setAPIKey(apiKey, options: nil)
-        } else if (!GMBLPlaceManager.isMonitoring()) {
-            print("GMBLPlaceManager is not previously started and API key is not provided. Unable to start Gimbal Adapter.");
-            return;
-        }
-
+        Gimbal.setAPIKey(apiKey, options: nil)
+        Gimbal.start()
         isStarted = true
         placeManager.delegate = gimbalDelegate
-        GMBLPlaceManager.startMonitoring()
-
+        setDeviceAttributes()
         print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier())")
     }
-
 
     /**
      * Stops the adapter.
      */
     open func stop() {
-        guard (isStarted) else {
-            return
-        }
-
+        Gimbal.stop()
         isStarted = false
-        GMBLPlaceManager.stopMonitoring()
         placeManager.delegate = nil
-
         print("Stopped Gimbal Adapter");
+    }
+    
+    private func setDeviceAttributes() {
+        var deviceAttributes = Dictionary<AnyHashable, Any>()
+        if (deviceAttributesManager.getDeviceAttributes() != nil && deviceAttributesManager.getDeviceAttributes().count > 0) {
+            for (key,val) in deviceAttributesManager.getDeviceAttributes() {
+                deviceAttributes[key] = val
+            }
+        }
+        if (UAirship.namedUser().identifier != nil) {
+            deviceAttributes["ua.nameduser.id"] = UAirship.namedUser().identifier
+        }
+        if (UAirship.push().channelID != nil) {
+            deviceAttributes["ua.channel.id"] = UAirship.push().channelID
+        }
+        if (deviceAttributes.count > 0) {
+            deviceAttributesManager.setDeviceAttributes(deviceAttributes)
+        }
     }
 }
 
