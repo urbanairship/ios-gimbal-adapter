@@ -96,7 +96,7 @@ static id _sharedObject = nil;
     if ([UAirship push].channelID) {
         [deviceAttributes setObject:[UAirship push].channelID forKey:@"ua.channel.id"];
     }
-    if ([deviceAttributes count] > 0) {
+    if (deviceAttributes.count > 0) {
         [self.deviceAttributesManager setDeviceAttributes:deviceAttributes];
         UA_LDEBUG(@"Set Gimbal Device Attributes: %@", [deviceAttributes description]);
     }
