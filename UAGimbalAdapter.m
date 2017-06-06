@@ -1,4 +1,4 @@
-/* Copyright 2016 Urban Airship and Contributors */
+/* Copyright 2017 Urban Airship and Contributors */
 
 #import "UAGimbalAdapter.h"
 
@@ -8,7 +8,6 @@
 @interface UAGimbalAdapter() <GMBLPlaceManagerDelegate>
 @property (nonatomic, strong) GMBLPlaceManager *placeManager;
 @property (nonatomic) GMBLDeviceAttributesManager * deviceAttributesManager;
-@property (nonatomic, assign, getter=isStarted) BOOL started;
 @end
 
 NSString *const GimbalSource = @"Gimbal";
@@ -31,7 +30,8 @@ static id _sharedObject = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:[UAGimbalAdapter class]
                                                     name:UIApplicationDidFinishLaunchingNotification
                                                   object:nil];
-    [[UAGimbalAdapter shared] restore];
+
+    [[UAGimbalAdapter shared] updateDeviceAttributes];
 }
 
 + (instancetype)shared {
@@ -47,11 +47,17 @@ static id _sharedObject = nil;
     if (self) {
         self.placeManager = [[GMBLPlaceManager alloc] init];
         self.deviceAttributesManager = [GMBLDeviceAttributesManager new];
+        self.placeManager.delegate = self;
 
         // Hide the power alert by default
         if (![[NSUserDefaults standardUserDefaults] valueForKey:GimbalAlertViewKey]) {
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:GimbalAlertViewKey];
         }
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(updateDeviceAttributes)
+                                                     name:UAChannelCreatedEvent
+                                                   object:nil];
     }
 
     return self;
@@ -59,12 +65,6 @@ static id _sharedObject = nil;
 
 - (void)dealloc {
     self.placeManager.delegate = nil;
-}
-
-- (void)restore {
-    self.started = [Gimbal isStarted];
-    self.placeManager.delegate = self;
-    [self setDeviceAttributes];
 }
 
 - (BOOL)isBluetoothPoweredOffAlertEnabled {
@@ -79,34 +79,37 @@ static id _sharedObject = nil;
 - (void)startWithGimbalAPIKey:(NSString *)gimbalAPIKey {
     [Gimbal setAPIKey:gimbalAPIKey options:nil];
     [Gimbal start];
-    self.started = YES;
-    self.placeManager.delegate = self;
-    [self setDeviceAttributes];
+    [self updateDeviceAttributes];
     UA_LDEBUG(@"Started Gimbal Adapter. Gimbal application instance identifier: %@", [Gimbal applicationInstanceIdentifier]);
 }
 
-- (void)setDeviceAttributes {
-    NSMutableDictionary *deviceAttributes = [NSMutableDictionary new];
-    if ([[self.deviceAttributesManager getDeviceAttributes] count] > 0) {
+- (void)updateDeviceAttributes {
+    NSMutableDictionary *deviceAttributes = [NSMutableDictionary dictionary];
+
+    if ([self.deviceAttributesManager getDeviceAttributes].count) {
         [deviceAttributes addEntriesFromDictionary:[self.deviceAttributesManager getDeviceAttributes]];
     }
-    if ([UAirship namedUser].identifier) {
-        [deviceAttributes setObject:[UAirship namedUser].identifier forKey:@"ua.nameduser.id"];
-    }
-    if ([UAirship push].channelID) {
-        [deviceAttributes setObject:[UAirship push].channelID forKey:@"ua.channel.id"];
-    }
-    if (deviceAttributes.count > 0) {
+
+    [deviceAttributes setValue:[UAirship namedUser].identifier forKey:@"ua.nameduser.id"];
+    [deviceAttributes setValue:[UAirship push].channelID forKey:@"ua.channel.id"];
+
+    if (deviceAttributes.count) {
         [self.deviceAttributesManager setDeviceAttributes:deviceAttributes];
         UA_LDEBUG(@"Set Gimbal Device Attributes: %@", [deviceAttributes description]);
     }
+
+    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
+    [identifiers setIdentifier:[Gimbal applicationInstanceIdentifier] forKey:@"com.urbanairship.gimbal.aii"];
+    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
 }
 
 - (void)stop {
     [Gimbal stop];
-    self.started = NO;
-    self.placeManager.delegate = nil;
     UA_LDEBUG(@"Stopped Gimbal Adapter.");
+}
+
+- (BOOL)isStarted {
+    return [Gimbal isStarted];
 }
 
 #pragma mark Gimbal place callbacks
@@ -127,6 +130,5 @@ static id _sharedObject = nil;
                                                           boundaryEvent:UABoundaryEventExit];
     [[UAirship shared].analytics addEvent:regionEvent];
 }
-
 
 @end
