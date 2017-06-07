@@ -1,4 +1,4 @@
-/* Copyright 2016 Urban Airship and Contributors */
+/* Copyright 2017 Urban Airship and Contributors */
 
 #import <Foundation/Foundation.h>
 
@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns true if the adapter is started, otherwise false.
  */
-@property (nonatomic, assign, readonly, getter=isStarted) BOOL started;
+@property (nonatomic, readonly, getter=isStarted) BOOL started;
 
 /**
  * Enables alert when Bluetooth is powered off. Defaults to NO.

@@ -1,7 +1,6 @@
-/* Copyright 2016 Urban Airship and Contributors */
+/* Copyright 2017 Urban Airship and Contributors */
 
 import AirshipKit
-import Gimbal
 
 open class GimbalAdapter {
 
@@ -9,11 +8,15 @@ open class GimbalAdapter {
      * Singleton access.
      */
     open static let shared = GimbalAdapter()
-    
+
     /**
      * Returns true if the adapter is started, otherwise false.
      */
-    open private(set) var isStarted: Bool
+    open var isStarted: Bool {
+        get {
+            return Gimbal.isStarted()
+        }
+    }
 
     // Keys
     private let hideBlueToothAlertViewKey = "gmbl_hide_bt_power_alert_view"
@@ -35,24 +38,27 @@ open class GimbalAdapter {
     }
 
     private init() {
-        isStarted = false
         placeManager = GMBLPlaceManager()
         gimbalDelegate = GimbalDelegate()
         deviceAttributesManager = GMBLDeviceAttributesManager()
+        placeManager.delegate = gimbalDelegate
 
         // Hide the BLE power status alert to prevent duplicate alerts
         if (UserDefaults.standard.value(forKey: hideBlueToothAlertViewKey) == nil) {
             UserDefaults.standard.set(true, forKey: hideBlueToothAlertViewKey)
         }
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(GimbalAdapter.updateDeviceAttributes),
+                                               name: NSNotification.Name(UAChannelCreatedEvent),
+                                               object: nil)
     }
 
     /**
      * Restores the adapter. Should be called in didFinishLaunchingWithOptions.
      */
     open func restore() {
-        isStarted = Gimbal.isStarted()
-        placeManager.delegate = gimbalDelegate
-        setDeviceAttributes()
+        updateDeviceAttributes()
     }
 
     /**
@@ -62,9 +68,7 @@ open class GimbalAdapter {
     open func start(_ apiKey: String?) {
         Gimbal.setAPIKey(apiKey, options: nil)
         Gimbal.start()
-        isStarted = true
-        placeManager.delegate = gimbalDelegate
-        setDeviceAttributes()
+        updateDeviceAttributes()
         print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier())")
     }
 
@@ -73,27 +77,33 @@ open class GimbalAdapter {
      */
     open func stop() {
         Gimbal.stop()
-        isStarted = false
-        placeManager.delegate = nil
         print("Stopped Gimbal Adapter");
     }
-    
-    private func setDeviceAttributes() {
+
+    @objc private func updateDeviceAttributes() {
         var deviceAttributes = Dictionary<AnyHashable, Any>()
+
         if (deviceAttributesManager.getDeviceAttributes() != nil && deviceAttributesManager.getDeviceAttributes().count > 0) {
             for (key,val) in deviceAttributesManager.getDeviceAttributes() {
                 deviceAttributes[key] = val
             }
         }
+
         if (UAirship.namedUser().identifier != nil) {
             deviceAttributes["ua.nameduser.id"] = UAirship.namedUser().identifier
         }
+
         if (UAirship.push().channelID != nil) {
             deviceAttributes["ua.channel.id"] = UAirship.push().channelID
         }
+
         if (deviceAttributes.count > 0) {
             deviceAttributesManager.setDeviceAttributes(deviceAttributes)
         }
+
+        let identifiers = UAirship.shared().analytics.currentAssociatedDeviceIdentifiers()
+        identifiers.setIdentifier(Gimbal.applicationInstanceIdentifier(), forKey: "com.urbanairship.gimbal.aii")
+        UAirship.shared().analytics.associateDeviceIdentifiers(identifiers);
     }
 }
 
