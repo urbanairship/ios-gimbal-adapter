@@ -1,6 +1,7 @@
 /* Copyright 2017 Urban Airship and Contributors */
 
 #import <Foundation/Foundation.h>
+#import "UAGimbalAdapterProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns true if the adapter is started, otherwise false.
  */
 @property (nonatomic, readonly, getter=isStarted) BOOL started;
+
+/**
+ * Receives forwarded callbacks from the GMBLPlaceManagerDelegate
+ */
+@property (nonatomic, weak) id<UAGimbalAdapterProtocol> gimbalAdapterDelegate;
 
 /**
  * Enables alert when Bluetooth is powered off. Defaults to NO.

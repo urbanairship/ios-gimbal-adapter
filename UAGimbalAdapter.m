@@ -1,13 +1,12 @@
 /* Copyright 2017 Urban Airship and Contributors */
 
 #import "UAGimbalAdapter.h"
-
 #import <Gimbal/Gimbal.h>
 @import AirshipKit;
 
 @interface UAGimbalAdapter() <GMBLPlaceManagerDelegate>
 @property (nonatomic, strong) GMBLPlaceManager *placeManager;
-@property (nonatomic) GMBLDeviceAttributesManager * deviceAttributesManager;
+@property (nonatomic) GMBLDeviceAttributesManager *deviceAttributesManager;
 @end
 
 NSString *const GimbalSource = @"Gimbal";
@@ -121,6 +120,11 @@ static id _sharedObject = nil;
                                                           boundaryEvent:UABoundaryEventEnter];
 
     [[UAirship shared].analytics addEvent:regionEvent];
+
+    id strongDelegate = self.gimbalAdapterDelegate;
+    if ([strongDelegate respondsToSelector:@selector(placeManager:didBeginVisit:)]) {
+        [strongDelegate placeManager:manager didBeginVisit:visit];
+    }
 }
 
 - (void)placeManager:(GMBLPlaceManager *)manager didEndVisit:(GMBLVisit *)visit {
@@ -129,6 +133,32 @@ static id _sharedObject = nil;
                                                                  source:GimbalSource
                                                           boundaryEvent:UABoundaryEventExit];
     [[UAirship shared].analytics addEvent:regionEvent];
+
+    id strongDelegate = self.gimbalAdapterDelegate;
+    if ([strongDelegate respondsToSelector:@selector(placeManager:didEndVisit:)]) {
+        [strongDelegate placeManager:manager didEndVisit:visit];
+    }
+}
+
+- (void)placeManager:(GMBLPlaceManager *)manager didBeginVisit:(GMBLVisit *)visit withDelay:(NSTimeInterval)delayTime {
+    id strongDelegate = self.gimbalAdapterDelegate;
+    if ([strongDelegate respondsToSelector:@selector(placeManager:didBeginVisit:withDelay:)]) {
+        [strongDelegate placeManager:manager didBeginVisit:visit withDelay:delayTime];
+    }
+}
+
+- (void)placeManager:(GMBLPlaceManager *)manager didReceiveBeaconSighting:(GMBLBeaconSighting *)sighting forVisits:(NSArray *)visits {
+    id strongDelegate = self.gimbalAdapterDelegate;
+    if ([strongDelegate respondsToSelector:@selector(placeManager:didReceiveBeaconSighting:forVisits:)]) {
+        [strongDelegate placeManager:manager didReceiveBeaconSighting:sighting forVisits:visits];
+    }
+}
+
+- (void)placeManager:(GMBLPlaceManager *)manager didDetectLocation:(CLLocation *)location {
+    id strongDelegate = self.gimbalAdapterDelegate;
+    if ([strongDelegate respondsToSelector:@selector(placeManager:didDetectLocation:)]) {
+        [strongDelegate placeManager:manager didDetectLocation:location];
+    }
 }
 
 @end
