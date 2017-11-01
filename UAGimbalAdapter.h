@@ -1,6 +1,7 @@
 /* Copyright 2017 Urban Airship and Contributors */
 
 #import <Foundation/Foundation.h>
+#import <Gimbal/Gimbal.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,6 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Enables alert when Bluetooth is powered off. Defaults to NO.
  */
 @property (nonatomic, assign, getter=isBluetoothPoweredOffAlertEnabled) BOOL bluetoothPoweredOffAlertEnabled;
+
+/**
+ * Receives forwarded callbacks from the GMBLPlaceManagerDelegate
+ */
+@property (nonatomic, weak) id<GMBLPlaceManagerDelegate> delegate;
 
 /**
  * Returns the shared `GimbalAdapter` instance.
