@@ -1,6 +1,10 @@
 ChangeLog
 =========
 
+Version 1.2.0 October 31, 2017
+==============================
+- Added forward delegate for gimbal place events
+
 Version 1.1.0 June 6, 2017
 ==========================
 - Added device attribute tracking between Urban Airship and Gimbal SDKs
