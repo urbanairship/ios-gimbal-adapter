@@ -3,7 +3,7 @@
 #import "UAGimbalAdapter.h"
 
 #import <Gimbal/Gimbal.h>
-@import AirshipKit;
+@import AirshipCore;
 
 @interface UAGimbalAdapter() <GMBLPlaceManagerDelegate>
 @property (nonatomic, strong) GMBLPlaceManager *placeManager;
@@ -91,7 +91,7 @@ static id _sharedObject = nil;
     }
 
     [deviceAttributes setValue:[UAirship namedUser].identifier forKey:@"ua.nameduser.id"];
-    [deviceAttributes setValue:[UAirship push].channelID forKey:@"ua.channel.id"];
+    [deviceAttributes setValue:[UAChannel shared].identifier forKey:@"ua.channel.id"];
 
     if (deviceAttributes.count) {
         [self.deviceAttributesManager setDeviceAttributes:deviceAttributes];
@@ -143,6 +143,15 @@ static id _sharedObject = nil;
 
 - (void)placeManager:(GMBLPlaceManager *)manager didBeginVisit:(GMBLVisit *)visit withDelay:(NSTimeInterval)delayTime {
     id strongDelegate = self.delegate;
+
+    UA_LDEBUG(@"Entered a Gimbal Place: %@ with delay: %f on the following date: %@",visit.place.name, delayTime, visit.arrivalDate);
+
+    UARegionEvent *regionEvent = [UARegionEvent regionEventWithRegionID:visit.place.identifier
+                                                                 source:GimbalSource
+                                                          boundaryEvent:UABoundaryEventEnter];
+
+    [[UAirship shared].analytics addEvent:regionEvent];
+
     if ([strongDelegate respondsToSelector:@selector(placeManager:didBeginVisit:withDelay:)]) {
         [strongDelegate placeManager:manager didBeginVisit:visit withDelay:delayTime];
     }
