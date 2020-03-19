@@ -1,13 +1,20 @@
-/* Copyright 2017 Urban Airship and Contributors */
+/* Copyright Airship and Contributors */
 
-import AirshipKit
+
+#if canImport(AirshipCore)
+import AirshipCore
+#elseif canImport(Airship)
+import Airship
+#endif
+
+import Gimbal
 
 open class GimbalAdapter {
 
     /**
      * Singleton access.
      */
-    open static let shared = GimbalAdapter()
+    public static let shared = GimbalAdapter()
 
 
     /**
@@ -75,7 +82,7 @@ open class GimbalAdapter {
         Gimbal.setAPIKey(apiKey, options: nil)
         Gimbal.start()
         updateDeviceAttributes()
-        print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier())")
+        print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier() ?? "⚠️ Empty Gimbal application instance identifier")")
     }
 
     /**
@@ -99,8 +106,8 @@ open class GimbalAdapter {
             deviceAttributes["ua.nameduser.id"] = UAirship.namedUser().identifier
         }
 
-        if (UAirship.push().channelID != nil) {
-            deviceAttributes["ua.channel.id"] = UAirship.push().channelID
+        if (UAChannel.shared().identifier != nil) {
+            deviceAttributes["ua.channel.id"] = UAChannel.shared().identifier
         }
 
         if (deviceAttributes.count > 0) {
@@ -123,6 +130,8 @@ private class GimbalDelegate : NSObject, GMBLPlaceManagerDelegate {
     }
 
     func placeManager(_ manager: GMBLPlaceManager!, didBegin visit: GMBLVisit!, withDelay delayTime: TimeInterval) {
+        let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
+        UAirship.shared().analytics.add(regionEvent)
         GimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit, withDelay: delayTime)
     }
 
