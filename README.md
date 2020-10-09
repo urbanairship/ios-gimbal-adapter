@@ -1,26 +1,23 @@
-# Urban Airship iOS Gimbal Adapter
+# Airship iOS Gimbal Adapter
 
-The Urban Airship Gimbal Adapter is a drop-in class that allows users to integrate Gimbal place events with 
-Urban Airship.
+The Airship Gimbal Adapter is a drop-in class that allows users to integrate Gimbal place events with Airship.
 
 ## Resources
 - [Gimbal Developer Guide](https://gimbal.com/doc/iosdocs/v2/devguide.html)
 - [Gimbal Manager Portal](https://manager.gimbal.com)
-- [Urban Airship Getting Started guide](http://docs.urbanairship.com/build/ios.html)
+- [Airship Getting Started guide](http://docs.airship.com/build/ios.html)
 
-## Requirements
+## Installation
 
-Before installing the Gimbal Adapter, make sure the following dependencies are installed for your application:
- - Urban Airship SDK 8.0.0 or newer
- - Gimbal SDK 2.0.0 or newer
+The Airship Gimbal Adapter is available through CocoaPods. To install it, simply add the following line to your Podfile:
+
+`pod "Airshp-iOS-Gimbal-Adapter"`
 
 ## Swift
 
-#### Installation
+#### Restoring the adapter
 
-1) Copy `GimbalAdapter.swift` into your project
-
-2) In your application delegate, call `restore` during `didFinishLaunchingWithOptions`:
+In your application delegate call `restore` during `didFinishLaunchingWithOptions`:
 
 ```
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
@@ -37,13 +34,15 @@ Restore will automatically resume the adapter on application launch.
 #### Starting the adapter
 
 To start the adapter call:
+
 ```
 GimbalAdapter.shared.start("## PLACE YOUR API KEY HERE ##")
 ```
 
 #### Stopping the adapter
 
-Adapter can be stopped at anytime by calling:
+The adapter can be stopped at anytime by calling:
+
 ```
 GimbalAdapter.shared.stop()
 ```
@@ -59,11 +58,6 @@ GimbalAdapter.shared.bluetoothPoweredOffAlertEnabled = true
 ```
 
 ## Objective-C
-
-#### Installation
-
-1) Copy `UAGimbalAdapter.h` and `UAGimbalAdapter.m` into your project
-
 
 #### Starting the adapter
 

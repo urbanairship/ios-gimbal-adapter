@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+Version 2.0.0 October 12, 2020
+==============================
+- Updated for Airshp SDK 14.1.2
+- Cocoapods support
+
 Version 1.2.0 October 31, 2017
 ==============================
 - Added forward delegate for gimbal place events

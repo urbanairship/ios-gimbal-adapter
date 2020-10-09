@@ -3,7 +3,12 @@
 #import "UAGimbalAdapter.h"
 
 #import <Gimbal/Gimbal.h>
+
+#if UA_USE_MODULE_IMPORT
 @import AirshipCore;
+#else
+@import Airship;
+#endif
 
 @interface UAGimbalAdapter() <GMBLPlaceManagerDelegate>
 @property (nonatomic, strong) GMBLPlaceManager *placeManager;
