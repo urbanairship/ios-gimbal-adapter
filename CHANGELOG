@@ -1,10 +1,13 @@
 ChangeLog
 =========
 
-Version 2.0.0 October 12, 2020
+Version 2.0.0 October 14, 2020
 ==============================
 - Updated for Airshp SDK 14.1.2
 - Cocoapods support
+- Renamed `GimbalAdapter` to `AirshipGimbalAdapter
+- Removed `UAGimbalAdapter` class.
+- Obj-C and Swift apps now build against the same API
 
 Version 1.2.0 October 31, 2017
 ==============================

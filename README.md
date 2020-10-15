@@ -11,18 +11,29 @@ The Airship Gimbal Adapter is a drop-in class that allows users to integrate Gim
 
 The Airship Gimbal Adapter is available through CocoaPods. To install it, simply add the following line to your Podfile:
 
-`pod "Airshp-iOS-Gimbal-Adapter"`
+`pod "Airshp-Gimbal-Adapter"`
 
-## Swift
-
-#### Restoring the adapter
+### Restoring the adapter
 
 In your application delegate call `restore` during `didFinishLaunchingWithOptions`:
+
+#### Swift
 
 ```
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
 
-   GimbalAdapter.shared.restore()
+   AirshipGimbalAdapter.shared.restore()
+
+   ...
+}
+```
+
+#### Obj-C
+
+```
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+   [[AirshpGimbalAdapter shared] restore];
 
    ...
 }
@@ -31,57 +42,48 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 Restore will automatically resume the adapter on application launch.
 
 
-#### Starting the adapter
+### Starting the adapter
 
-To start the adapter call:
-
-```
-GimbalAdapter.shared.start("## PLACE YOUR API KEY HERE ##")
-```
-
-#### Stopping the adapter
-
-The adapter can be stopped at anytime by calling:
+#### Swift
 
 ```
-GimbalAdapter.shared.stop()
+AirshipGimbalAdapter.shared.start("## PLACE YOUR API KEY HERE ##")
 ```
 
-#### Enabling Bluetooth Warning
+#### Obj-C
+
+```
+[[AirshpGimbalAdapter shared] start:@"## PLACE YOUR API KEY HERE ##"];
+```
+
+### Stopping the adapter
+
+#### Swift
+
+```
+AirshipGimbalAdapter.shared.stop()
+```
+
+#### Obj-C
+
+```
+[[AirshpGimbalAdapter shared] stop];
+```
+
+### Enabling Bluetooth Warning
 
 In the event that Bluetooth is disabled during place monitoring, the Gimbal Adapter can prompt users with an alert view
-to enable Bluetooth. This functionality is disabled by default, but can be enabled by setting GimbalAdapter's
+to enable Bluetooth. This functionality is disabled by default, but can be enabled by setting AirshipGimbalAdapter's
 `bluetoothPoweredOffAlertEnabled` property to true:
 
-```
-GimbalAdapter.shared.bluetoothPoweredOffAlertEnabled = true
-```
-
-## Objective-C
-
-#### Starting the adapter
-
-To start the adapter call:
-```
-[[UAGimbalAdapter shared] startWithGimbalAPIKey:@"## PLACE YOUR API KEY HERE ##"];
-```
-
-The adapter will automatically resume itself on next application launch. You only need to call
-start once.
-
-#### Stopping the adapter
-
-Adapter can be stopped at anytime by calling:
-```
-[[UAGimbalAdapter shared] stop];
-```
-
-#### Enabling Bluetooth Warning
-
-In the event that Bluetooth is disabled during place monitoring, the Gimbal Adapter can prompt users with an alert view
-to enable Bluetooth.  This functionality is disabled by default, but can be enabled by setting GimbalAdapter's
-bluetoothPoweredOffAlertEnabled property to YES:
+#### Swift
 
 ```
-[UAGimbalAdapter shared].bluetoothPoweredOffAlertEnabled = YES;
+AirshipGimbalAdapter.shared.bluetoothPoweredOffAlertEnabled = true
+```
+
+#### Obj-C
+
+```
+[AirshpGimbalAdapter shared].bluetoothPoweredOffAlertEnabled = YES;
 ```

@@ -1,31 +1,25 @@
 /* Copyright Airship and Contributors */
 
 
-#if canImport(AirshipCore)
-import AirshipCore
-#elseif canImport(Airship)
 import Airship
-#endif
-
 import Gimbal
 
-open class GimbalAdapter {
+@objc open class AirshipGimbalAdapter : NSObject {
 
     /**
      * Singleton access.
      */
-    public static let shared = GimbalAdapter()
-
+    @objc public static let shared = AirshipGimbalAdapter()
 
     /**
      * Receives forwarded callbacks from the GMBLPlaceManagerDelegate
      */
-    open var delegate: GMBLPlaceManagerDelegate?
+    @objc open var delegate: GMBLPlaceManagerDelegate?
 
     /**
      * Returns true if the adapter is started, otherwise false.
      */
-    open var isStarted: Bool {
+    @objc open var isStarted: Bool {
         get {
             return Gimbal.isStarted()
         }
@@ -33,15 +27,14 @@ open class GimbalAdapter {
 
     // Keys
     private let hideBlueToothAlertViewKey = "gmbl_hide_bt_power_alert_view"
-
     private let placeManager: GMBLPlaceManager
-    private let gimbalDelegate: GimbalDelegate
+    private let gimbalDelegate: AirshipGimbalDelegate
     private let deviceAttributesManager: GMBLDeviceAttributesManager
 
     /**
      * Enables alert when Bluetooth is powered off. Defaults to NO.
      */
-    open var bluetoothPoweredOffAlertEnabled : Bool {
+    @objc open var bluetoothPoweredOffAlertEnabled : Bool {
         get {
             return !UserDefaults.standard.bool(forKey: hideBlueToothAlertViewKey)
         }
@@ -50,11 +43,13 @@ open class GimbalAdapter {
         }
     }
 
-    private init() {
+    private override init() {
         placeManager = GMBLPlaceManager()
-        gimbalDelegate = GimbalDelegate()
+        gimbalDelegate = AirshipGimbalDelegate()
         deviceAttributesManager = GMBLDeviceAttributesManager()
         placeManager.delegate = gimbalDelegate
+
+        super.init();
 
         // Hide the BLE power status alert to prevent duplicate alerts
         if (UserDefaults.standard.value(forKey: hideBlueToothAlertViewKey) == nil) {
@@ -62,7 +57,7 @@ open class GimbalAdapter {
         }
 
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GimbalAdapter.updateDeviceAttributes),
+                                               selector: #selector(AirshipGimbalAdapter.updateDeviceAttributes),
                                                name: NSNotification.Name(UAChannelCreatedEvent),
                                                object: nil)
     }
@@ -70,7 +65,7 @@ open class GimbalAdapter {
     /**
      * Restores the adapter. Should be called in didFinishLaunchingWithOptions.
      */
-    open func restore() {
+    @objc open func restore() {
         updateDeviceAttributes()
     }
 
@@ -78,7 +73,7 @@ open class GimbalAdapter {
      * Starts the adapter.
      * @param apiKey The Gimbal API key.
      */
-    open func start(_ apiKey: String?) {
+    @objc open func start(_ apiKey: String?) {
         Gimbal.setAPIKey(apiKey, options: nil)
         Gimbal.start()
         updateDeviceAttributes()
@@ -88,7 +83,7 @@ open class GimbalAdapter {
     /**
      * Stops the adapter.
      */
-    open func stop() {
+    @objc open func stop() {
         Gimbal.stop()
         print("Stopped Gimbal Adapter");
     }
@@ -120,32 +115,32 @@ open class GimbalAdapter {
     }
 }
 
-private class GimbalDelegate : NSObject, GMBLPlaceManagerDelegate {
+private class AirshipGimbalDelegate : NSObject, GMBLPlaceManagerDelegate {
     private let source: String = "Gimbal"
 
     func placeManager(_ manager: GMBLPlaceManager, didBegin visit: GMBLVisit) {
         let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
         UAirship.shared().analytics.add(regionEvent)
-        GimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit)
+        AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit)
     }
 
     func placeManager(_ manager: GMBLPlaceManager!, didBegin visit: GMBLVisit!, withDelay delayTime: TimeInterval) {
         let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
         UAirship.shared().analytics.add(regionEvent)
-        GimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit, withDelay: delayTime)
+        AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit, withDelay: delayTime)
     }
 
     func placeManager(_ manager: GMBLPlaceManager, didEnd visit: GMBLVisit) {
         let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .exit)!
         UAirship.shared().analytics.add(regionEvent)
-        GimbalAdapter.shared.delegate?.placeManager?(manager, didEnd: visit)
+        AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didEnd: visit)
     }
 
     func placeManager(_ manager: GMBLPlaceManager!, didReceive sighting: GMBLBeaconSighting!, forVisits visits: [Any]!) {
-        GimbalAdapter.shared.delegate?.placeManager?(manager, didReceive: sighting, forVisits: visits)
+        AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didReceive: sighting, forVisits: visits)
     }
 
     func placeManager(_ manager: GMBLPlaceManager!, didDetect location: CLLocation!) {
-        GimbalAdapter.shared.delegate?.placeManager?(manager, didDetect: location)
+        AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didDetect: location)
     }
 }

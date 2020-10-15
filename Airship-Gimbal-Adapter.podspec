@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.version                 = "2.0.0"
-  s.name                    = "Airship-iOS-Gimbal-Adapter"
+  s.name                    = "Airship-Gimbal-Adapter"
   s.summary                 = "An adapter for integrating Gimbal place events with Airship."
   s.documentation_url       = "https://github.com/urbanairship/ios-gimbal-adapter"
   s.homepage                = "https://www.airship.com"
@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
   s.source_files            = "Pod/Classes/*"
   s.requires_arc            = true
   s.dependency                "Gimbal", "~> 2.0"
-  s.dependency                "Airship/Core", "~> 14.1.2"
+  s.dependency                "Airship", "~> 14.1.2"
 end
 
