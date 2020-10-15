@@ -13,6 +13,22 @@ The Airship Gimbal Adapter is available through CocoaPods. To install it, simply
 
 `pod "Airshp-Gimbal-Adapter"`
 
+## Usage
+
+### Importing
+
+#### Swift
+
+```
+import AirshipGimbalAdapter
+```
+
+#### Obj-C
+
+```
+@import AirshipGimbalAdapter
+```
+
 ### Restoring the adapter
 
 In your application delegate call `restore` during `didFinishLaunchingWithOptions`:
