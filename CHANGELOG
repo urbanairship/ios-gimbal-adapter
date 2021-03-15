@@ -1,9 +1,14 @@
 ChangeLog
 =========
 
+Version 2.1.0 March 15, 2021
+============================
+- Updated for Airship SDK 14.3.0
+- Requires Gimbal SDK 2.85 and above
+
 Version 2.0.0 October 14, 2020
 ==============================
-- Updated for Airshp SDK 14.1.2
+- Updated for Airship SDK 14.1.2
 - Cocoapods support
 - Renamed `GimbalAdapter` to `AirshipGimbalAdapter
 - Removed `UAGimbalAdapter` class.

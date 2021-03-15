@@ -1,6 +1,6 @@
 
 Pod::Spec.new do |s|
-  s.version                 = "2.0.0"
+  s.version                 = "2.1.0"
   s.name                    = "AirshipGimbalAdapter"
   s.summary                 = "An adapter for integrating Gimbal place events with Airship."
   s.documentation_url       = "https://github.com/urbanairship/ios-gimbal-adapter"
@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
   s.swift_version           = "5.0"
   s.source_files            = "Pod/Classes/*"
   s.requires_arc            = true
-  s.dependency                "Gimbal", "~> 2.0"
-  s.dependency                "Airship", "~> 14.1.2"
+  s.dependency                "Gimbal", "~> 2.85"
+  s.dependency                "Airship", "~> 14.3.0"
   s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'}
   s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 end
