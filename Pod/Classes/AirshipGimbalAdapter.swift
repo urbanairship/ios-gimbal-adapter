@@ -12,9 +12,9 @@ import Gimbal
     @objc public static let shared = AirshipGimbalAdapter()
 
     /**
-     * Receives forwarded callbacks from the GMBLPlaceManagerDelegate
+     * Receives forwarded callbacks from the PlaceManagerDelegate
      */
-    @objc open var delegate: GMBLPlaceManagerDelegate?
+    @objc open var delegate: PlaceManagerDelegate?
 
     /**
      * Returns true if the adapter is started, otherwise false.
@@ -27,9 +27,9 @@ import Gimbal
 
     // Keys
     private let hideBlueToothAlertViewKey = "gmbl_hide_bt_power_alert_view"
-    private let placeManager: GMBLPlaceManager
+    private let placeManager: PlaceManager
     private let gimbalDelegate: AirshipGimbalDelegate
-    private let deviceAttributesManager: GMBLDeviceAttributesManager
+    private let deviceAttributesManager: DeviceAttributesManager
 
     /**
      * Enables alert when Bluetooth is powered off. Defaults to NO.
@@ -44,9 +44,9 @@ import Gimbal
     }
 
     private override init() {
-        placeManager = GMBLPlaceManager()
+        placeManager = PlaceManager()
         gimbalDelegate = AirshipGimbalDelegate()
-        deviceAttributesManager = GMBLDeviceAttributesManager()
+        deviceAttributesManager = DeviceAttributesManager()
         placeManager.delegate = gimbalDelegate
 
         super.init();
@@ -74,7 +74,12 @@ import Gimbal
      * @param apiKey The Gimbal API key.
      */
     @objc open func start(_ apiKey: String?) {
-        Gimbal.setAPIKey(apiKey, options: nil)
+        guard let key = apiKey else {
+            print("Unable to start Gimbal Adapter, missing key")
+            return
+        }
+
+        Gimbal.setAPIKey(key, options: nil)
         Gimbal.start()
         updateDeviceAttributes()
         print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier() ?? "⚠️ Empty Gimbal application instance identifier")")
@@ -91,7 +96,7 @@ import Gimbal
     @objc private func updateDeviceAttributes() {
         var deviceAttributes = Dictionary<AnyHashable, Any>()
 
-        if (deviceAttributesManager.getDeviceAttributes() != nil && deviceAttributesManager.getDeviceAttributes().count > 0) {
+        if (deviceAttributesManager.getDeviceAttributes().count > 0) {
             for (key,val) in deviceAttributesManager.getDeviceAttributes() {
                 deviceAttributes[key] = val
             }
@@ -115,32 +120,32 @@ import Gimbal
     }
 }
 
-private class AirshipGimbalDelegate : NSObject, GMBLPlaceManagerDelegate {
+private class AirshipGimbalDelegate : NSObject, PlaceManagerDelegate {
     private let source: String = "Gimbal"
 
-    func placeManager(_ manager: GMBLPlaceManager, didBegin visit: GMBLVisit) {
+    func placeManager(_ manager: PlaceManager, didBegin visit: Visit) {
         let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
         UAirship.shared().analytics.add(regionEvent)
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit)
     }
 
-    func placeManager(_ manager: GMBLPlaceManager!, didBegin visit: GMBLVisit!, withDelay delayTime: TimeInterval) {
+    func placeManager(_ manager: PlaceManager, didBegin visit: Visit, withDelay delayTime: TimeInterval) {
         let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
         UAirship.shared().analytics.add(regionEvent)
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit, withDelay: delayTime)
     }
 
-    func placeManager(_ manager: GMBLPlaceManager, didEnd visit: GMBLVisit) {
+    func placeManager(_ manager: PlaceManager, didEnd visit: Visit) {
         let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .exit)!
         UAirship.shared().analytics.add(regionEvent)
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didEnd: visit)
     }
 
-    func placeManager(_ manager: GMBLPlaceManager!, didReceive sighting: GMBLBeaconSighting!, forVisits visits: [Any]!) {
+    func placeManager(_ manager: PlaceManager, didReceive sighting: BeaconSighting, forVisits visits: [Any]) {
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didReceive: sighting, forVisits: visits)
     }
 
-    func placeManager(_ manager: GMBLPlaceManager!, didDetect location: CLLocation!) {
+    func placeManager(_ manager: PlaceManager, didDetect location: CLLocation) {
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didDetect: location)
     }
 }
