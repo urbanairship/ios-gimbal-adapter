@@ -2,7 +2,11 @@
 
 
 import Airship
+
+#if !targetEnvironment(simulator)
 import Gimbal
+#endif
+
 
 @objc open class AirshipGimbalAdapter : NSObject {
 
@@ -11,25 +15,35 @@ import Gimbal
      */
     @objc public static let shared = AirshipGimbalAdapter()
 
+    #if !targetEnvironment(simulator)
+
     /**
      * Receives forwarded callbacks from the PlaceManagerDelegate
      */
     @objc open var delegate: PlaceManagerDelegate?
 
+    private let placeManager: PlaceManager
+    private let gimbalDelegate: AirshipGimbalDelegate
+    private let deviceAttributesManager: DeviceAttributesManager
+    
+    #endif
+    
     /**
      * Returns true if the adapter is started, otherwise false.
      */
     @objc open var isStarted: Bool {
         get {
+            #if !targetEnvironment(simulator)
             return Gimbal.isStarted()
+            #else
+            return false
+            #endif
         }
     }
 
     // Keys
     private let hideBlueToothAlertViewKey = "gmbl_hide_bt_power_alert_view"
-    private let placeManager: PlaceManager
-    private let gimbalDelegate: AirshipGimbalDelegate
-    private let deviceAttributesManager: DeviceAttributesManager
+  
 
     /**
      * Enables alert when Bluetooth is powered off. Defaults to NO.
@@ -42,7 +56,8 @@ import Gimbal
             UserDefaults.standard.set(!newValue, forKey: hideBlueToothAlertViewKey)
         }
     }
-
+    
+    #if !targetEnvironment(simulator)
     private override init() {
         placeManager = PlaceManager()
         gimbalDelegate = AirshipGimbalDelegate()
@@ -61,6 +76,7 @@ import Gimbal
                                                name: NSNotification.Name.UAChannelCreatedEvent,
                                                object: nil)
     }
+    #endif
 
     /**
      * Restores the adapter. Should be called in didFinishLaunchingWithOptions.
@@ -74,6 +90,7 @@ import Gimbal
      * @param apiKey The Gimbal API key.
      */
     @objc open func start(_ apiKey: String?) {
+        #if !targetEnvironment(simulator)
         guard let key = apiKey else {
             print("Unable to start Gimbal Adapter, missing key")
             return
@@ -83,17 +100,21 @@ import Gimbal
         Gimbal.start()
         updateDeviceAttributes()
         print("Started Gimbal Adapter. Gimbal application instance identifier: \(Gimbal.applicationInstanceIdentifier() ?? "⚠️ Empty Gimbal application instance identifier")")
+        #endif
     }
 
     /**
      * Stops the adapter.
      */
     @objc open func stop() {
+        #if !targetEnvironment(simulator)
         Gimbal.stop()
         print("Stopped Gimbal Adapter");
+        #endif
     }
 
     @objc private func updateDeviceAttributes() {
+        #if !targetEnvironment(simulator)
         var deviceAttributes = Dictionary<AnyHashable, Any>()
 
         if (deviceAttributesManager.getDeviceAttributes().count > 0) {
@@ -117,9 +138,11 @@ import Gimbal
         let identifiers = UAirship.shared().analytics.currentAssociatedDeviceIdentifiers()
         identifiers.setIdentifier(Gimbal.applicationInstanceIdentifier(), forKey: "com.urbanairship.gimbal.aii")
         UAirship.shared().analytics.associateDeviceIdentifiers(identifiers);
+        #endif
     }
 }
 
+#if !targetEnvironment(simulator)
 private class AirshipGimbalDelegate : NSObject, PlaceManagerDelegate {
     private let source: String = "Gimbal"
 
@@ -149,3 +172,4 @@ private class AirshipGimbalDelegate : NSObject, PlaceManagerDelegate {
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didDetect: location)
     }
 }
+#endif
