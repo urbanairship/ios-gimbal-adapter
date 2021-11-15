@@ -58,7 +58,7 @@ import Gimbal
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(AirshipGimbalAdapter.updateDeviceAttributes),
-                                               name: NSNotification.Name(UAChannelCreatedEvent),
+                                               name: NSNotification.Name.UAChannelCreatedEvent,
                                                object: nil)
     }
 

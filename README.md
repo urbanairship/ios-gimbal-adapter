@@ -11,7 +11,7 @@ The Airship Gimbal Adapter is a drop-in class that allows users to integrate Gim
 
 The Airship Gimbal Adapter is available through CocoaPods. To install it, simply add the following line to your Podfile:
 
-`pod "Airshp-Gimbal-Adapter"`
+`pod "AirshipGimbalAdapter"`
 
 ## Usage
 
