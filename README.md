@@ -38,6 +38,7 @@ In your application delegate call `restore` during `didFinishLaunchingWithOption
 ```
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
 
+   // after Airship.takeOff   
    AirshipGimbalAdapter.shared.restore()
 
    ...
@@ -49,6 +50,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ```
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
+   // after UAirship.takeOff
    [[AirshpGimbalAdapter shared] restore];
 
    ...

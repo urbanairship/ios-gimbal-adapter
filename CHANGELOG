@@ -1,7 +1,12 @@
 ChangeLog
 =========
 
-Version 3.0.0 November 15, 2021
+Version 4.0.0 November 10, 2021
+===============================
+- Updated to Airship SDK 16.0.3
+- Requires Xcode 13+
+
+Version 3.0.0 November 10, 2021
 ===============================
 - Updated to Airship SDK 14.8
 - Updated to Gimbal SDK 2.86
