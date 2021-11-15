@@ -1,7 +1,6 @@
 /* Copyright Airship and Contributors */
 
-
-import Airship
+import AirshipKit
 
 #if !targetEnvironment(simulator)
 import Gimbal
@@ -73,7 +72,7 @@ import Gimbal
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(AirshipGimbalAdapter.updateDeviceAttributes),
-                                               name: NSNotification.Name.UAChannelCreatedEvent,
+                                               name: Channel.channelCreatedEvent,
                                                object: nil)
     }
     #endif
@@ -122,22 +121,17 @@ import Gimbal
                 deviceAttributes[key] = val
             }
         }
-
-        if (UAirship.namedUser().identifier != nil) {
-            deviceAttributes["ua.nameduser.id"] = UAirship.namedUser().identifier
-        }
-
-        if (UAChannel.shared().identifier != nil) {
-            deviceAttributes["ua.channel.id"] = UAChannel.shared().identifier
-        }
+        
+        deviceAttributes["ua.nameduser.id"] = Airship.contact.namedUserID
+        deviceAttributes["ua.channel.id"] = Airship.channel.identifier
 
         if (deviceAttributes.count > 0) {
             deviceAttributesManager.setDeviceAttributes(deviceAttributes)
         }
 
-        let identifiers = UAirship.shared().analytics.currentAssociatedDeviceIdentifiers()
-        identifiers.setIdentifier(Gimbal.applicationInstanceIdentifier(), forKey: "com.urbanairship.gimbal.aii")
-        UAirship.shared().analytics.associateDeviceIdentifiers(identifiers);
+        let identifiers = Airship.analytics.currentAssociatedDeviceIdentifiers()
+        identifiers.set(identifier: Gimbal.applicationInstanceIdentifier(), key: "com.urbanairship.gimbal.aii")
+        Airship.analytics.associateDeviceIdentifiers(identifiers)
         #endif
     }
 }
@@ -147,20 +141,26 @@ private class AirshipGimbalDelegate : NSObject, PlaceManagerDelegate {
     private let source: String = "Gimbal"
 
     func placeManager(_ manager: PlaceManager, didBegin visit: Visit) {
-        let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
-        UAirship.shared().analytics.add(regionEvent)
+        if let regionEvent = RegionEvent(regionID: visit.place.identifier,
+                                      source: source,
+                                         boundaryEvent: .enter) {
+            Airship.analytics.addEvent(regionEvent)
+        }
+        
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit)
     }
 
     func placeManager(_ manager: PlaceManager, didBegin visit: Visit, withDelay delayTime: TimeInterval) {
-        let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter)!
-        UAirship.shared().analytics.add(regionEvent)
+        if let regionEvent = RegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .enter) {
+            Airship.analytics.addEvent(regionEvent)
+        }
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didBegin: visit, withDelay: delayTime)
     }
 
     func placeManager(_ manager: PlaceManager, didEnd visit: Visit) {
-        let regionEvent: UARegionEvent = UARegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .exit)!
-        UAirship.shared().analytics.add(regionEvent)
+        if let regionEvent = RegionEvent(regionID: visit.place.identifier, source: source, boundaryEvent: .exit) {
+            Airship.analytics.addEvent(regionEvent)
+        }
         AirshipGimbalAdapter.shared.delegate?.placeManager?(manager, didEnd: visit)
     }
 

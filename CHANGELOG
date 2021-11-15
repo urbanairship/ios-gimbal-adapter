@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+Version 4.0.0 November 15, 2021
+===============================
+- Updated to Airship SDK 16.1.0
+- Requires Xcode 13+
+
 Version 3.0.0 November 15, 2021
 ===============================
 - Updated to Airship SDK 14.8
