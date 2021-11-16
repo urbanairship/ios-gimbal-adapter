@@ -2,10 +2,7 @@
 
 import AirshipKit
 
-#if !targetEnvironment(simulator)
 import Gimbal
-#endif
-
 
 @objc open class AirshipGimbalAdapter : NSObject {
 
