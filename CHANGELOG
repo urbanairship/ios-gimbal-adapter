@@ -1,38 +1,33 @@
-ChangeLog
-=========
+# ChangeLog
 
-Version 4.0.0 November 15, 2021
-===============================
+## Version 4.1.0 June 7, 2022
+- Updated to Airship SDK 16.7.0
+
+## Version 4.0.0 November 15, 2021
 - Updated to Airship SDK 16.1.0
 - Requires Xcode 13+
 
-Version 3.0.0 November 15, 2021
-===============================
+## Version 3.0.0 November 15, 2021
 - Updated to Airship SDK 14.8
 - Updated to Gimbal SDK 2.86
 - Requires Xcode 13+
 
-Version 2.1.0 March 15, 2021
-============================
+## Version 2.1.0 March 15, 2021
 - Updated for Airship SDK 14.3.0
 - Requires Gimbal SDK 2.85 and above
 
-Version 2.0.0 October 14, 2020
-==============================
+## Version 2.0.0 October 14, 2020
 - Updated for Airship SDK 14.1.2
 - Cocoapods support
 - Renamed `GimbalAdapter` to `AirshipGimbalAdapter
 - Removed `UAGimbalAdapter` class.
 - Obj-C and Swift apps now build against the same API
 
-Version 1.2.0 October 31, 2017
-==============================
+## Version 1.2.0 October 31, 2017
 - Added forward delegate for gimbal place events
 
-Version 1.1.0 June 6, 2017
-==========================
+## Version 1.1.0 June 6, 2017
 - Added device attribute tracking between Urban Airship and Gimbal SDKs
 
-Version 1.0.0 December 2, 2016
-==============================
+## Version 1.0.0 December 2, 2016
 - Initial Gimbal Adapter release
