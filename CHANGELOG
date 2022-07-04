@@ -1,5 +1,8 @@
 # ChangeLog
 
+## Version 4.1.1 July 5, 2022
+- Use Gimbal SDK 2.85
+
 ## Version 4.1.0 June 7, 2022
 - Updated to Airship SDK 16.7.0
 
